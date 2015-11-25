@@ -10,15 +10,18 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            
+
+            <Image Source="/Assets/Images/cortana_logo.png" Height="80" Width="80"/>
+
             <TextBlock Text="Hello, que puis-je faire pour vous ?" TextWrapping="WrapWholeWords" x:Name="CortanaSpeakTxt"
                        Margin="20" HorizontalAlignment="Center"/>
-            
-            <Button Content="Start" Click="Start" HorizontalAlignment="Center"/>
-            <TextBox x:Name="DictationTextBox"/>
-            <Button Content="Stop" Click="Reset"/>
-            <Button x:Name="BtnClearText" Content="Effacer"/>
-            
+
+            <TextBox x:Name="DictationTextBox" IsEnabled="False" HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Start" Click="Start" Margin="5"/>
+                <Button Content="Stop" Click="Reset"/>
+            </StackPanel>
+
             <MediaElement x:Name="MediaElementCtrl"/>
             <TextBlock x:Name="DictationButtonText"/>
         </StackPanel>

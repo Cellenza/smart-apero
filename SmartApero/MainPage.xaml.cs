@@ -101,7 +101,7 @@ namespace SmartApero
             _currentQuestion = question;
 
             // Stop listening
-            Button_Click_1(null, null);
+            Stop(null, null);
 
             // Format question text
             var txt = string.Format(new QuestionFormatter(), question.AssociatedMark, _questions.ToArray());
@@ -138,7 +138,7 @@ namespace SmartApero
                     }
                 }
             }
-            else 
+            else
             {
                 _currentQuestion.Value = _currentQuestion.Finder.Resolve(args.Result.Text);
             }
@@ -146,13 +146,17 @@ namespace SmartApero
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 DictationTextBox.Text = dictatedTextBuilder.ToString();
-                BtnClearText.IsEnabled = true;
             });
 
             _currentQuestion.HasBeenAsked = true;
-            var nextQ = _questions.Where(e => !e.HasBeenAsked).First();
+            var nextQ = _questions.Where(e => !e.HasBeenAsked).FirstOrDefault();
 
-            AskQuestion(nextQ);
+            if (nextQ == null)
+            {
+                EndConversation();
+            }
+            else
+                AskQuestion(nextQ);
 
             //}
             //else
@@ -164,6 +168,20 @@ namespace SmartApero
             //}
         }
 
+        private async void EndConversation()
+        {
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                CortanaSpeakTxt.Text = "Conversation terminée: ";
+
+                foreach (var q in _questions)
+                {
+                    CortanaSpeakTxt.Text += q.Key + "=" + q.Value + " ";
+                }
+            });
+
+            Stop(null, null);
+        }
 
         private async void ContinuousRecognitionSession_Completed(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args)
         {
@@ -201,11 +219,10 @@ namespace SmartApero
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 DictationTextBox.Text = textboxContent;
-                BtnClearText.IsEnabled = true;
             });
         }
 
-        private async void Button_Click_1(object sender, RoutedEventArgs e)
+        private async void Stop(object sender, RoutedEventArgs e)
         {
             if (speechRecognizer.State != SpeechRecognizerState.Idle)
             {
