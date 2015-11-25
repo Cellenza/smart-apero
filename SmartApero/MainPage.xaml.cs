@@ -1,22 +1,14 @@
 ﻿using SmartApero.Finders;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Media.SpeechRecognition;
 using Windows.Media.SpeechSynthesis;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -28,17 +20,17 @@ namespace SmartApero
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private bool _waitAnswer;
+        private Question _currentQuestion;
 
         private List<Question> _questions = new List<Question>()
         {
-            new Question { Key = "subject", AssociatedMark = "Hello. Que puis-je faire pour vous ?"},
-            new Question { Key = "persons", AssociatedMark = "Ok Guillaume. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
-            new Question { Key = "alcool", AssociatedMark = "Ok, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder() },
-            new Question { Key = "diet", AssociatedMark = "Y-t-il des régimes particuliers à respecter: kacher, hallal, végétarien ?" , Finder = new GenericFinder()},
+            new Question { Key = "subject", AssociatedMark = "Bonjour, que puis-je faire pour vous ?"},
+            new Question { Key = "persons", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
+            new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder() },
+            new Question { Key = "diet", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: Kachère, allale, végétarien ?" , Finder = new GenericFinder()},
             new Question { Key = "budget", AssociatedMark = "Etes-vous limité à un budget ?" },
         };
-
-        private Question _currentQuestion;
 
         private SpeechRecognizer speechRecognizer;
 
@@ -48,7 +40,6 @@ namespace SmartApero
         private CoreDispatcher dispatcher;
 
         private StringBuilder dictatedTextBuilder = new StringBuilder();
-
         private SpeechSynthesizer _speechSynthesizer;
         private VoiceInformation _voice;
 
@@ -106,8 +97,16 @@ namespace SmartApero
             // Format question text
             var txt = string.Format(new QuestionFormatter(), question.AssociatedMark, _questions.ToArray());
 
+            _waitAnswer = true;
+
             // Voice speaking
             Speak(txt);
+        }
+
+        private async void AskQuestionAgain()
+        {
+            _waitAnswer = false;
+            await Speak("Désolé, je n'ai pas compris.");
         }
 
         private async void Start(object sender, RoutedEventArgs e)
@@ -147,6 +146,12 @@ namespace SmartApero
             {
                 DictationTextBox.Text = dictatedTextBuilder.ToString();
             });
+
+            if (_currentQuestion.Value == null)
+            {
+                AskQuestionAgain();
+                return;
+            }
 
             _currentQuestion.HasBeenAsked = true;
             var nextQ = _questions.Where(e => !e.HasBeenAsked).FirstOrDefault();
@@ -242,6 +247,8 @@ namespace SmartApero
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                AnimateCortana.Begin();
+
                 CortanaSpeakTxt.Text = text;
 
                 var stream = await _speechSynthesizer.SynthesizeTextToStreamAsync(text);
@@ -258,7 +265,10 @@ namespace SmartApero
         /// <param name="e"></param>
         private void MediaElementCtrl_MediaEnded(object sender, RoutedEventArgs e)
         {
-            Start(null, null);
+            if (_waitAnswer)
+                Start(null, null);
+            else
+                AskQuestion(_currentQuestion);
         }
 
         /// <summary>

@@ -31,7 +31,6 @@ namespace SmartApero.Finders
 
         private string RetrieveNumber(string text)
         {
-            var result = String.Empty;
             var words = text.Split(' ');
 
             if (words.Contains("entre") && words.Contains("et"))
@@ -67,8 +66,7 @@ namespace SmartApero.Finders
                 }
             }
 
-            return result;
+            return null;
         }
-
     }
 }
