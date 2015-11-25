@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartApero.Finders;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,21 +28,18 @@ namespace SmartApero
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private Dictionary<int, string> Numbers = new Dictionary<int, string>();
-
 
         private List<Question> _questions = new List<Question>()
         {
             new Question { Key = "subject", AssociatedMark = "Hello. Que puis-je faire pour vous ?"},
-            new Question { Key = "persons", AssociatedMark = "Ok Guillaume. Combien de personnes participeront à votre {0:subject} ?"},
-            new Question { Key = "persons", AssociatedMark = "Ok, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?" },
-            new Question { Key = "alcool", AssociatedMark = "" },
-            new Question { Key = "budget", AssociatedMark = "" },
+            new Question { Key = "persons", AssociatedMark = "Ok Guillaume. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
+            new Question { Key = "alcool", AssociatedMark = "Ok, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder() },
+            new Question { Key = "diet", AssociatedMark = "Y-t-il des régimes particuliers à respecter: kacher, hallal, végétarien ?" , Finder = new GenericFinder()},
+            new Question { Key = "budget", AssociatedMark = "Etes-vous limité à un budget ?" },
         };
 
-        private int _questionsCount;
-        private string _subject;
-        private int _personsCount;
+        private Question _currentQuestion;
+
         private SpeechRecognizer speechRecognizer;
 
         // Speech events may originate from a thread other than the UI thread.
@@ -57,16 +55,6 @@ namespace SmartApero
         public MainPage()
         {
             this.InitializeComponent();
-            Numbers = new Dictionary<int, string>();
-            Numbers.Add(1, "un");
-            Numbers.Add(2, "deux");
-            Numbers.Add(3, "trois");
-            Numbers.Add(4, "quatre");
-            Numbers.Add(5, "cinq");
-            Numbers.Add(6, "six");
-            Numbers.Add(7, "sept");
-            Numbers.Add(8, "huit");
-            Numbers.Add(9, "neuf");
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -100,43 +88,59 @@ namespace SmartApero
             }
             #endregion
 
+            StartConversation();
         }
 
-        #region Continuous Recognition
+        private void StartConversation()
+        {
+            AskQuestion(_questions[0]);
+        }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private void AskQuestion(Question question)
+        {
+            _currentQuestion = question;
+
+            // Stop listening
+            Button_Click_1(null, null);
+
+            // Format question text
+            var txt = string.Format(new QuestionFormatter(), question.AssociatedMark, _questions.ToArray());
+
+            // Voice speaking
+            Speak(txt);
+        }
+
+        private async void Start(object sender, RoutedEventArgs e)
         {
             if (speechRecognizer.State == SpeechRecognizerState.Idle)
             {
                 await speechRecognizer.ContinuousRecognitionSession.StartAsync();
             }
-
-            //StartRecognizing_Click(sender, e);
         }
+
+        #region Continuous Recognition
 
         private async void ContinuousRecognitionSession_ResultGenerated(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionResultGeneratedEventArgs args)
         {
-            var question = _questions[_questionsCount];
-
             //if (args.Result.Confidence == SpeechRecognitionConfidence.Medium ||
             //  args.Result.Confidence == SpeechRecognitionConfidence.High)
             //{
             dictatedTextBuilder.Append(args.Result.Text + " ");
 
-            if (question.Key == "subject")
+            if (_currentQuestion.Key == "subject")
             {
                 var words = args.Result.Text.Split(' ');
                 for (int i = 0; i < words.Length; i++)
                 {
                     if (words[i] == "un" || words[i] == "une")
                     {
-                        question.Value = words[i + 1];
+                        _currentQuestion.Value = words[i + 1];
                     }
                 }
             }
-            else if (question.Key == "persons")
+            else 
             {
-                question.Value = RetrieveNumber(args.Result.Text);
+                _currentQuestion.Value = _currentQuestion.Finder.Resolve(args.Result.Text);
             }
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -145,12 +149,10 @@ namespace SmartApero
                 BtnClearText.IsEnabled = true;
             });
 
-            // Stop
-            Button_Click_1(null, null);
+            _currentQuestion.HasBeenAsked = true;
+            var nextQ = _questions.Where(e => !e.HasBeenAsked).First();
 
-            var txt = string.Format(new QuestionFormatter(), question.AssociatedMark, _questions.ToArray());
-
-            Speak(txt);
+            AskQuestion(nextQ);
 
             //}
             //else
@@ -162,46 +164,6 @@ namespace SmartApero
             //}
         }
 
-        private string RetrieveNumber(string text)
-        {
-            var result = String.Empty;
-            var words = text.Split(' ');
-
-            if (words.Contains("entre") && words.Contains("et"))
-            {
-                var n1 = RetrieveNumber(text.Split(new[] { "entre" }, StringSplitOptions.None)[1]);
-                var n2 = RetrieveNumber(text.Split(new[] { "et" }, StringSplitOptions.None)[1]);
-
-                var n = Math.Round((decimal)((int.Parse(n1) + int.Parse(n2)) / 2));
-
-                if (n == 15)
-                    return "une quinzaine de";
-
-                return "environ " + n.ToString();
-            }
-
-            // Find number
-            for (int i = 0; i < words.Length; i++)
-            {
-                int res = 0;
-                if (int.TryParse(words[i], out res))
-                {
-                    return res.ToString();
-                }
-            }
-
-            // If not found, find the number in letter
-            for (int i = 0; i < words.Length; i++)
-            {
-                if (Numbers.ContainsValue(words[i]))
-                {
-                    var number = Numbers.First(e => e.Value == words[i]);
-                    return number.Key.ToString();
-                }
-            }
-
-            return result;
-        }
 
         private async void ContinuousRecognitionSession_Completed(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args)
         {
@@ -243,22 +205,6 @@ namespace SmartApero
             });
         }
 
-        private async void StartRecognizing_Click(object sender, RoutedEventArgs e)
-        {
-            // Create an instance of SpeechRecognizer.
-            var speechRecognizer = new Windows.Media.SpeechRecognition.SpeechRecognizer();
-
-            // Compile the dictation grammar by default.
-            await speechRecognizer.CompileConstraintsAsync();
-
-            // Start recognition.
-            Windows.Media.SpeechRecognition.SpeechRecognitionResult speechRecognitionResult = await speechRecognizer.RecognizeWithUIAsync();
-
-            // Do something with the recognition result.
-            var messageDialog = new Windows.UI.Popups.MessageDialog(speechRecognitionResult.Text, "Text spoken");
-            await messageDialog.ShowAsync();
-        }
-
         private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
             if (speechRecognizer.State != SpeechRecognizerState.Idle)
@@ -269,6 +215,12 @@ namespace SmartApero
 
         #endregion
 
+        /// <summary>
+        /// Make the voice speak the text
+        /// When the voice has ended, start listening
+        /// </summary>
+        /// <param name="text">Text to be spoken</param>
+        /// <returns>nothing</returns>
         private async Task Speak(string text)
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
@@ -278,22 +230,38 @@ namespace SmartApero
                 var stream = await _speechSynthesizer.SynthesizeTextToStreamAsync(text);
                 MediaElementCtrl.SetSource(stream, stream.ContentType);
                 MediaElementCtrl.Play();
-
             });
-
         }
 
+        /// <summary>
+        /// Start listening the user voice
+        /// Increment the question count: a question has been asked, now listening for the user answer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MediaElementCtrl_MediaEnded(object sender, RoutedEventArgs e)
         {
-            _questionsCount++;
-            Button_Click(null, null);
+            Start(null, null);
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Reset the conversation at its beginning and start a new conversation
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Reset(object sender, RoutedEventArgs e)
         {
-            _questionsCount = 0;
+            // Reset questions
+            _questions.ForEach((q) =>
+            {
+                q.HasBeenAsked = false;
+                q.Value = null;
+            });
+
             DictationTextBox.Text = String.Empty;
-            Button_Click(null, null);
+
+            // Start the conversation
+            StartConversation();
         }
     }
 }

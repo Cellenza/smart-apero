@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartApero.Finders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,10 @@ namespace SmartApero
         public string Key { get; set; }
         public string AssociatedMark { get; set; }
         public object Value { get; set; }
+
+        public bool HasBeenAsked { get; set; }
+
+        private Finder _finder = new GenericFinder();
+        public Finder Finder { get { return _finder; } set { _finder = value; } }
     }
 }

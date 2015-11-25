@@ -14,9 +14,9 @@
             <TextBlock Text="Hello, que puis-je faire pour vous ?" TextWrapping="WrapWholeWords" x:Name="CortanaSpeakTxt"
                        Margin="20" HorizontalAlignment="Center"/>
             
-            <Button Content="Start" Click="Button_Click" HorizontalAlignment="Center"/>
+            <Button Content="Start" Click="Start" HorizontalAlignment="Center"/>
             <TextBox x:Name="DictationTextBox"/>
-            <Button Content="Stop" Click="Button_Click_2"/>
+            <Button Content="Stop" Click="Reset"/>
             <Button x:Name="BtnClearText" Content="Effacer"/>
             
             <MediaElement x:Name="MediaElementCtrl"/>
