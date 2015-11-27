@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FEF481B8-5714-4747-890F-295440DA12EF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Cdiscount.OpenApi.ProxyClient</RootNamespace>
+    <AssemblyName>Cdiscount.OpenApi.ProxyClient</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Config\ProxyClientConfig.cs" />
+    <Compile Include="Contract\Common\BaseHttpClient.cs" />
+    <Compile Include="Contract\Common\BaseHttpContent.cs" />
+    <Compile Include="Contract\Common\BaseResponseMessage.cs" />
+    <Compile Include="Contract\Exception\MissingApiKeyException.cs" />
+    <Compile Include="Contract\GetCart\CartItem.cs" />
+    <Compile Include="Contract\GetCart\CartItemList.cs" />
+    <Compile Include="Contract\GetCart\GetCartRequest.cs" />
+    <Compile Include="Contract\GetCart\GetCartRequestWrapper.cs" />
+    <Compile Include="Contract\GetProduct\GetProductRequest.cs" />
+    <Compile Include="Contract\GetProduct\GetProductRequestScope.cs" />
+    <Compile Include="Contract\GetProduct\GetProductRequestWrapper.cs" />
+    <Compile Include="Contract\GetProduct\GetProductResponse.cs" />
+    <Compile Include="Contract\Common\Product.cs" />
+    <Compile Include="Contract\Common\ProductCondition.cs" />
+    <Compile Include="Contract\Common\ProductImage.cs" />
+    <Compile Include="Contract\Common\ProductOffer.cs" />
+    <Compile Include="Contract\Common\ProductPriceDetail.cs" />
+    <Compile Include="Contract\Common\ProductPriceDiscount.cs" />
+    <Compile Include="Contract\Common\ProductPriceSaving.cs" />
+    <Compile Include="Contract\Common\ProductSeller.cs" />
+    <Compile Include="Contract\Common\ProductShipping.cs" />
+    <Compile Include="Contract\Common\ProductSize.cs" />
+    <Compile Include="Contract\PushToCart\PushToCartRequest.cs" />
+    <Compile Include="Contract\PushToCart\PushToCartRequestWrapper.cs" />
+    <Compile Include="Contract\PushToCart\PushToCartResponse.cs" />
+    <Compile Include="Contract\GetCart\GetCartResponse.cs" />
+    <Compile Include="Contract\Search\SearchRequestFilters.cs" />
+    <Compile Include="Contract\Search\SearchRequestFiltersNavigation.cs" />
+    <Compile Include="Contract\Search\SearchRequestFiltersPrice.cs" />
+    <Compile Include="Contract\Search\SearchRequestFiltersCondition.cs" />
+    <Compile Include="Contract\Search\SearchRequestSortBy.cs" />
+    <Compile Include="Contract\Search\SearchRequestPagination.cs" />
+    <Compile Include="Contract\Search\SearchRequest.cs" />
+    <Compile Include="Contract\Search\SearchRequestWrapper.cs" />
+    <Compile Include="Contract\Search\SearchResponse.cs" />
+    <Compile Include="Helper\SingleValueArrayConverter.cs" />
+    <Compile Include="Helper\ToLowerCaseStringEnumerableConverter.cs" />
+    <Compile Include="OpenApiClient.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
