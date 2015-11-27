@@ -1,9 +1,11 @@
-﻿using Cdiscount.OpenApi.ProxyClient.Contract.Search;
+﻿using Cdiscount.OpenApi.ProxyClient.Contract.Common;
+using Cdiscount.OpenApi.ProxyClient.Contract.Search;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -46,19 +48,27 @@ namespace SmartApero
             }
         }
 
-        private async void LoadProducts()
+        private async Task LoadProducts()
         {
-            Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
-            Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
+            List<Product> Products = new List<Product>();
 
-            SearchRequest request = new SearchRequest();
-
-            if (_questions.Single(e => e.Key == "child").Value.ToString() == "oui")
+            await Task.Run(() =>
             {
-                request.Keyword = "fraise tagada";
-            }
+                Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
+                Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
 
-            var response = client.Search(request);
+                SearchRequest request = new SearchRequest();
+
+                if (_questions.Single(e => e.Key == "child").Value.ToString() == "oui")
+                {
+                    request.Keyword = "fraise tagada";
+                }
+
+                var response = client.Search(request);
+                Products.Add(response.Products.First());
+            });
+
+            CartList.ItemsSource = Products;
         }
     }
 }

@@ -29,9 +29,8 @@ namespace SmartApero
             new Question { Key = "persons", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
             new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder() },
             new Question { Key = "special", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: Kachère, allale, végétarien ?" , Finder = new GenericFinder()},
-            new Question { Key = "budget", AssociatedMark = "êtes-vous limité à un budget ?" },
             new Question { Key = "type", AssociatedMark = "Plutôt apéro dinatoire ou classique ?" },
-            new Question { Key = "diet", AssociatedMark = "Dois-je ajouter des produits équilibrés ? (Exemple: crudités, salades composées)." },
+            //new Question { Key = "diet", AssociatedMark = "Dois-je ajouter des produits équilibrés ? (Exemple: crudités, salades composées)." },
             new Question { Key = "child", AssociatedMark = "Y'aura t-il des enfants ?" },
         };
 
@@ -83,6 +82,13 @@ namespace SmartApero
             #endregion
 
             StartConversation();
+
+
+#if DEBUG
+            _questions.Last().Value = "oui";
+            EndConversation();
+            return;
+#endif
         }
 
         private void StartConversation()
@@ -159,12 +165,6 @@ namespace SmartApero
             _currentQuestion.HasBeenAsked = true;
             var nextQ = _questions.Where(e => !e.HasBeenAsked).FirstOrDefault();
 
-#if DEBUG
-            _questions.Last().Value = "oui";
-            EndConversation();
-            return;
-#endif
-
             if (nextQ == null)
             {
                 EndConversation();
@@ -188,10 +188,10 @@ namespace SmartApero
             {
                 CortanaSpeakTxt.Text = "Conversation terminée: ";
 
-                foreach (var q in _questions)
-                {
-                    CortanaSpeakTxt.Text += q.Key + "=" + q.Value + " ";
-                }
+                //foreach (var q in _questions)
+                //{
+                //    CortanaSpeakTxt.Text += q.Key + "=" + q.Value + " ";
+                //}
 
                 Frame.Navigate(typeof(CartPage), _questions);
             });
