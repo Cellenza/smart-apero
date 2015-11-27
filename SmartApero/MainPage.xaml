@@ -10,13 +10,15 @@
         <Storyboard x:Name="AnimateCortana">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="image">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="180"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="180"/>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+        <Image Source="/Assets/Images/SmartAperoLogo.png" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Margin="10"/>
+        
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
             <!--<Grid>
