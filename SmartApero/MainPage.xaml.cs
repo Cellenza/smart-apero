@@ -186,6 +186,8 @@ namespace SmartApero
                 {
                     CortanaSpeakTxt.Text += q.Key + "=" + q.Value + " ";
                 }
+
+                Frame.Navigate(typeof(CartPage), _questions);
             });
 
             Stop(null, null);
