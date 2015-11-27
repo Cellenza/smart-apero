@@ -159,6 +159,12 @@ namespace SmartApero
             _currentQuestion.HasBeenAsked = true;
             var nextQ = _questions.Where(e => !e.HasBeenAsked).FirstOrDefault();
 
+#if DEBUG
+            _questions.Last().Value = "oui";
+            EndConversation();
+            return;
+#endif
+
             if (nextQ == null)
             {
                 EndConversation();

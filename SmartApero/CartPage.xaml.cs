@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cdiscount.OpenApi.ProxyClient.Contract.Search;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,8 +49,16 @@ namespace SmartApero
         private async void LoadProducts()
         {
             Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
-            Cdiscount.OpenApi.ProxyClient .OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient();
-            client.Search()
+            Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
+
+            SearchRequest request = new SearchRequest();
+
+            if (_questions.Single(e => e.Key == "child").Value.ToString() == "oui")
+            {
+                request.Keyword = "fraise tagada";
+            }
+
+            var response = client.Search(request);
         }
     }
 }
