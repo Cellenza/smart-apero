@@ -59,10 +59,12 @@ namespace SmartApero
 
                 SearchRequest request = new SearchRequest();
 
-                if (_questions.Single(e => e.Key == "child").Value.ToString() == "oui")
-                {
-                    request.Keyword = "fraise tagada";
-                }
+                //if (_questions.Single(e => e.Key == "child").Value.ToString() == "oui")
+                //{
+                //    request.Keyword = "fraise tagada";
+                //}
+
+                AzureMachineLearning.InvokeRequestResponseService();
 
                 var response = client.Search(request);
                 Products.Add(response.Products.First());

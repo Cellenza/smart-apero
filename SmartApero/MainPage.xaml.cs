@@ -26,12 +26,12 @@ namespace SmartApero
         private List<Question> _questions = new List<Question>()
         {
             new Question { Key = "subject", AssociatedMark = "Bonjour, que puis-je faire pour vous ?"},
-            new Question { Key = "persons", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
+            new Question { Key = "nbpers", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
             new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder() },
-            new Question { Key = "special", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: Kachère, allale, végétarien ?" , Finder = new GenericFinder()},
-            new Question { Key = "type", AssociatedMark = "Plutôt apéro dinatoire ou classique ?" },
+            new Question { Key = "regime", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: Kachère, allale, végétarien ?" , Finder = new GenericFinder()},
+            new Question { Key = "theme", AssociatedMark = "Plutôt apéro dinatoire ou classique ?" },
             //new Question { Key = "diet", AssociatedMark = "Dois-je ajouter des produits équilibrés ? (Exemple: crudités, salades composées)." },
-            new Question { Key = "child", AssociatedMark = "Y'aura t-il des enfants ?" },
+            new Question { Key = "enfant", AssociatedMark = "Y'aura t-il des enfants ?" },
         };
 
         private SpeechRecognizer speechRecognizer;
