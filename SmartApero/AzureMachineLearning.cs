@@ -9,40 +9,29 @@ using System.Threading.Tasks;
 
 namespace SmartApero
 {
+    public class StringTable
+    {
+        public string[] ColumnNames { get; set; }
+        public string[,] Values { get; set; }
+    }
+
     public class AzureMachineLearning
     {
-        public class StringTable
-        {
-            public string[] ColumnNames { get; set; }
-            public string[,] Values { get; set; }
-        }
-
-        public static async Task InvokeRequestResponseService()
+        public static async Task<string> InvokeRequestResponseService(StringTable p)
         {
             using (var client = new HttpClient())
             {
-                var p = new StringTable()
-                {
-                    ColumnNames = new string[] { "nbpers", "regime", "enfant", "theme", "alcool" },
-                    Values = new string[,] { { "0", "0", "0", "0", "0" } }
-                };
                 var scoreRequest = new
                 {
-
                     Inputs = new Dictionary<string, StringTable>() {
-                        {
-                            "input2",
-                            p,
-                        },
-
-                        {
-                            "input1",
-                            new StringTable()
-                            {
-                                ColumnNames = new string[] {"nbpers", "regime", "enfant", "theme", "alcool", "champ", "vin", "biere", "fromage", "charcut", "chips", "sucrerie", "softs"},
-                                Values = new string[,] {  { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" },  { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" },  }
-                            }
-                        },
+                        {"input1",p},
+                        {"input6",p},
+                        {"input3",p},
+                        {"input4",p},
+                        {"input5",p},
+                        {"input2",p},
+                        {"input7",p},
+                        {"input8",p},
                     },
                     GlobalParameters = new Dictionary<string, string>()
                     {
@@ -61,7 +50,9 @@ namespace SmartApero
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();
-                    dynamic res = JsonConvert.DeserializeObject(result);
+
+                    return result;
+                    //dynamic res = JsonConvert.DeserializeObject(result);
                     //Console.WriteLine("Result: {0}", result);
                 }
                 else
@@ -75,6 +66,8 @@ namespace SmartApero
                     //Console.WriteLine(responseContent);
                 }
             }
+
+            return String.Empty;
         }
     }
 }

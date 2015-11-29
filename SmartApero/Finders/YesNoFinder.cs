@@ -18,9 +18,9 @@ namespace SmartApero.Finders
             foreach (var word in words)
             {
                 if (_no.Contains(word))
-                    return "non";
+                    return "0";
                 if (_yes.Contains(word))
-                    return "oui";
+                    return "1";
             }
 
             return null;

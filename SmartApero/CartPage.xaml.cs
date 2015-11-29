@@ -52,19 +52,37 @@ namespace SmartApero
         {
             List<Product> Products = new List<Product>();
 
-            await Task.Run(() =>
+            await Task.Run( async () =>
             {
                 Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
                 Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
 
                 SearchRequest request = new SearchRequest();
 
-                //if (_questions.Single(e => e.Key == "child").Value.ToString() == "oui")
-                //{
-                //    request.Keyword = "fraise tagada";
-                //}
+                if (_questions.Single(e => e.Key == QuestionsType.enfant.ToString()).Value.ToString() == "1")
+                {
+                    request.Keyword = "fraise tagada";
+                }
 
-                AzureMachineLearning.InvokeRequestResponseService();
+                var p = new StringTable()
+                {
+                    ColumnNames = new string[] {
+                        QuestionsType.nbpers.ToString(),
+                        QuestionsType.regime.ToString(),
+                        QuestionsType.enfant.ToString(),
+                        QuestionsType.theme.ToString(),
+                        QuestionsType.alcool.ToString()
+                    },
+                    Values = new string[,] { {
+                            _questions.Single(e=>e.Key == QuestionsType.nbpers.ToString()).Value.ToString(),
+                            "0",
+                            //_questions.Single(e=>e.Key == QuestionsType.regime.ToString()).Value.ToString(),
+                            _questions.Single(e=>e.Key == QuestionsType.enfant.ToString()).Value.ToString(),
+                            _questions.Single(e=>e.Key == QuestionsType.theme.ToString()).Value.ToString(),
+                            _questions.Single(e=>e.Key == QuestionsType.alcool.ToString()).Value.ToString() } }
+                };
+
+                var res = await AzureMachineLearning.InvokeRequestResponseService(p);
 
                 var response = client.Search(request);
                 Products.Add(response.Products.First());

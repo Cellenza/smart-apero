@@ -25,13 +25,13 @@ namespace SmartApero
 
         private List<Question> _questions = new List<Question>()
         {
-            new Question { Key = "subject", AssociatedMark = "Bonjour, que puis-je faire pour vous ?"},
-            new Question { Key = "nbpers", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder()},
-            new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder() },
-            new Question { Key = "regime", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: Kachère, allale, végétarien ?" , Finder = new GenericFinder()},
-            new Question { Key = "theme", AssociatedMark = "Plutôt apéro dinatoire ou classique ?" },
+            new Question { Key = "subject", AssociatedMark = "Bonjour, que puis-je faire pour vous ?", DefaultValue = "apero"},
+            new Question { Key = "nbpers", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder(), DefaultValue = 5},
+            new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder(), DefaultValue = 1 },
+            //new Question { Key = "regime", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: végétarien, Kachère, allale ?" , Finder = new GenericFinder(), DefaultValue = 0},
+            new Question { Key = "theme", AssociatedMark = "Plutôt apéro dinatoire ou classique ?", DefaultValue = 0},
             //new Question { Key = "diet", AssociatedMark = "Dois-je ajouter des produits équilibrés ? (Exemple: crudités, salades composées)." },
-            new Question { Key = "enfant", AssociatedMark = "Y'aura t-il des enfants ?" },
+            new Question { Key = "enfant", AssociatedMark = "Y'aura t-il des enfants ?", Finder = new YesNoFinder(), DefaultValue = 0},
         };
 
         private SpeechRecognizer speechRecognizer;
@@ -85,7 +85,7 @@ namespace SmartApero
 
 
 #if DEBUG
-            _questions.Last().Value = "oui";
+            _questions.Last().Value = "1";
             EndConversation();
             return;
 #endif
@@ -143,6 +143,23 @@ namespace SmartApero
                     if (words[i] == "un" || words[i] == "une")
                     {
                         _currentQuestion.Value = words[i + 1];
+                        break;
+                    }
+                }
+
+                for (int i = words.Length; i >= 0; i--)
+                {
+                    if (words[i].StartsWith("personne"))
+                    {
+                        var q = _questions.Single(e => e.Key == QuestionsType.nbpers.ToString());
+                        var nb = q.Finder.Resolve(args.Result.Text);
+
+                        if (nb != null)
+                        {
+                            q.HasBeenAsked = true;
+                        }
+
+                        break;
                     }
                 }
             }
