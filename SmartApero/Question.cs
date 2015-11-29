@@ -11,16 +11,21 @@ namespace SmartApero
     {
         public string Key { get; set; }
         public string AssociatedMark { get; set; }
+        public string Help { get; set; }
 
         private object _value;
         public object Value
         {
             get
-            { return _value == null ? DefaultValue : _value; }
+            {
+                //return _value == null ? DefaultValue : _value;
+                return _value;
+            }
             set { _value = value; }
         }
 
         public object DefaultValue { get; set; }
+
 
         public bool HasBeenAsked { get; set; }
 

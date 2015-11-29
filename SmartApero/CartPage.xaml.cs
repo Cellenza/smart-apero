@@ -1,4 +1,5 @@
 ﻿using Cdiscount.OpenApi.ProxyClient.Contract.Common;
+using Cdiscount.OpenApi.ProxyClient.Contract.PushToCart;
 using Cdiscount.OpenApi.ProxyClient.Contract.Search;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace SmartApero
     public sealed partial class CartPage : Page
     {
         List<Question> _questions;
+        List<Product> _products;
 
         public CartPage()
         {
@@ -50,74 +52,92 @@ namespace SmartApero
 
         private async Task LoadProducts()
         {
-            List<Product> Products = new List<Product>();
+            Loader.Visibility = Visibility.Visible;
 
-            await Task.Run( async () =>
-            {
-                Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
-                Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
+            _products = new List<Product>();
 
-                SearchRequest request = new SearchRequest();
-                
-                var keywords = new Dictionary<string, int>();
+            await Task.Run(async () =>
+           {
+               Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
+               Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
 
-                keywords.Add("charcuterie", 1);
+               SearchRequest request = new SearchRequest();
 
-                if (_questions.Single(e => e.Key == QuestionsType.enfant.ToString()).Value.ToString() == "1")
-                {
-                    keywords.Add( "fraise tagada", 1);
-                }
+               var keywords = new Dictionary<string, int>();
 
-                if (_questions.Single(e => e.Key == QuestionsType.alcool.ToString()).Value.ToString() == "1")
-                {
-                    keywords.Add("bouteille vin", 1);
-                    keywords.Add("pack biere", 1);
-                    keywords.Add("coca cola pack", 1);
-                }
-                else
-                {
-                    keywords.Add("coca cola pack", 2);
-                }
-                
-                if(_questions.Single(e => e.Key == QuestionsType.theme.ToString()).Value.ToString() == "0")
-                {
-                    keywords.Add("tomme de vache lait cru", 1);
-                }
-                else
-                {
-                    keywords.Add("chips vico", 1);
-                }
-                
+               keywords.Add("charcuterie", 1);
 
+               if (_questions.Single(e => e.Key == QuestionsType.enfant.ToString()).Value.ToString() == "1")
+               {
+                   keywords.Add("fraise tagada", 1);
+               }
 
-                var p = new StringTable()
-                {
-                    ColumnNames = new string[] {
-                        QuestionsType.nbpers.ToString(),
-                        QuestionsType.regime.ToString(),
-                        QuestionsType.enfant.ToString(),
-                        QuestionsType.theme.ToString(),
-                        QuestionsType.alcool.ToString()
-                    },
-                    Values = new string[,] { {
-                            _questions.Single(e=>e.Key == QuestionsType.nbpers.ToString()).Value.ToString(),
-                            "0",
-                            //_questions.Single(e=>e.Key == QuestionsType.regime.ToString()).Value.ToString(),
-                            _questions.Single(e=>e.Key == QuestionsType.enfant.ToString()).Value.ToString(),
-                            _questions.Single(e=>e.Key == QuestionsType.theme.ToString()).Value.ToString(),
-                            _questions.Single(e=>e.Key == QuestionsType.alcool.ToString()).Value.ToString() } }
-                };
+               if (_questions.Single(e => e.Key == QuestionsType.alcool.ToString()).Value.ToString() == "1")
+               {
+                   keywords.Add("bouteille vin", 1);
+                   keywords.Add("pack biere", 1);
+                   keywords.Add("coca cola pack", 1);
+               }
+               else
+               {
+                   keywords.Add("coca cola pack", 2);
+               }
 
-                var res = await AzureMachineLearning.InvokeRequestResponseService(p);
+               if (_questions.Single(e => e.Key == QuestionsType.theme.ToString()).Value.ToString() == "0")
+               {
+                   keywords.Add("tomme de vache lait cru", 1);
+               }
+               else
+               {
+                   keywords.Add("chips vico", 1);
+                   keywords.Add("cacahuète grillées salées", 1);
+               }
 
-                foreach (var k in keywords)
-                {
-                    var response = client.Search(request);
-                    Products.Add(response.Products.First());
-                }
-            });
+               #region Machine Learning
+               //var p = new StringTable()
+               //{
+               //    ColumnNames = new string[] {
+               //        QuestionsType.nbpers.ToString(),
+               //        QuestionsType.regime.ToString(),
+               //        QuestionsType.enfant.ToString(),
+               //        QuestionsType.theme.ToString(),
+               //        QuestionsType.alcool.ToString()
+               //    },
+               //    Values = new string[,] { {
+               //            _questions.Single(e=>e.Key == QuestionsType.nbpers.ToString()).Value.ToString(),
+               //            "0",
+               //            //_questions.Single(e=>e.Key == QuestionsType.regime.ToString()).Value.ToString(),
+               //            _questions.Single(e=>e.Key == QuestionsType.enfant.ToString()).Value.ToString(),
+               //            _questions.Single(e=>e.Key == QuestionsType.theme.ToString()).Value.ToString(),
+               //            _questions.Single(e=>e.Key == QuestionsType.alcool.ToString()).Value.ToString() } }
+               //};
 
-            CartList.ItemsSource = Products;
+               //var res = await AzureMachineLearning.InvokeRequestResponseService(p);
+               #endregion
+
+               foreach (var k in keywords.Keys)
+               {
+                   request.Keyword = k;
+                   var response = client.Search(request);
+                   _products.Add(response.Products.First());
+               }
+           });
+
+            Loader.Visibility = Visibility.Collapsed;
+
+            CartList.ItemsSource = _products;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig config = new Cdiscount.OpenApi.ProxyClient.Config.ProxyClientConfig { ApiKey = "e62a3122-2d61-462a-bef4-7403a408b5eb" };
+            Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
+
+            PushToCartRequest request = new PushToCartRequest();
+            request.ProductId = _products.First().Id;
+
+            client.PushToCart(request);
+            //Frame.Navigate()
         }
     }
 }

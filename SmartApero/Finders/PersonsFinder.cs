@@ -47,7 +47,7 @@ namespace SmartApero.Finders
             }
 
             // Find number
-            for (int i = 0; i < words.Length; i++)
+            for (int i = words.Length - 1; i >=0; i--)
             {
                 int res = 0;
                 if (int.TryParse(words[i], out res))
@@ -57,7 +57,8 @@ namespace SmartApero.Finders
             }
 
             // If not found, find the number in letter
-            for (int i = 0; i < words.Length; i++)
+            for (int i = words.Length - 1; i >=0; i--)
+            //for (int i = 0; i < words.Length; i++)
             {
                 if (Numbers.ContainsValue(words[i]))
                 {

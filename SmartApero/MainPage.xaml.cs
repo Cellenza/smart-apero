@@ -20,16 +20,17 @@ namespace SmartApero
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private bool _isCrazy = false;
         private bool _waitAnswer;
         private Question _currentQuestion;
 
         private List<Question> _questions = new List<Question>()
         {
-            new Question { Key = "subject", AssociatedMark = "Bonjour, que puis-je faire pour vous ?", DefaultValue = "apero"},
+            new Question { Key = "subject", AssociatedMark = "Bonjour, que puis-je faire pour vous ?", DefaultValue = "apéro"},
             new Question { Key = "nbpers", AssociatedMark = "C'est noté. Combien de personnes participeront à votre {0:subject} ?", Finder = new PersonsFinder(), DefaultValue = 5},
-            new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new GenericFinder(), DefaultValue = 1 },
+            new Question { Key = "alcool", AssociatedMark = "Parfait, j'ai noté que {1:persons} personnes participeront à votre {0:subject}. Souhaitez-vous boire de l'alcool ?", Finder = new YesNoFinder(), DefaultValue = 1 },
             //new Question { Key = "regime", AssociatedMark = "Y a-t-il des régimes particuliers à respecter: végétarien, Kachère, allale ?" , Finder = new GenericFinder(), DefaultValue = 0},
-            new Question { Key = "theme", AssociatedMark = "Plutôt apéro dinatoire ou classique ?", DefaultValue = 0},
+            new Question { Key = "theme", AssociatedMark = "Plutôt apéro dînatoire ou classique ?", Finder = new ThemeFinder(), DefaultValue = 0, Help = "L'apéro dînatoire propose du fromage par exemple, tandis que l'apéro classique s'assimile à un apéro foot."},
             //new Question { Key = "diet", AssociatedMark = "Dois-je ajouter des produits équilibrés ? (Exemple: crudités, salades composées)." },
             new Question { Key = "enfant", AssociatedMark = "Y'aura t-il des enfants ?", Finder = new YesNoFinder(), DefaultValue = 0},
         };
@@ -83,12 +84,11 @@ namespace SmartApero
 
             StartConversation();
 
-
-#if DEBUG
-            _questions.Last().Value = "1";
-            EndConversation();
-            return;
-#endif
+            //#if DEBUG
+            //            _questions.Last().Value = "1";
+            //            EndConversation();
+            //            return;
+            //#endif
         }
 
         private void StartConversation()
@@ -109,7 +109,14 @@ namespace SmartApero
             _waitAnswer = true;
 
             // Voice speaking
-            Speak(txt);
+            if (_isCrazy)
+            {
+                _isCrazy = false;
+                Speak("Un peu de folie n'a jamais fait de mal ! " + txt);
+            }
+            else
+                Speak(txt);
+
         }
 
         private async void AskQuestionAgain()
@@ -147,7 +154,7 @@ namespace SmartApero
                     }
                 }
 
-                for (int i = words.Length; i >= 0; i--)
+                for (int i = words.Length - 1; i >= 0; i--)
                 {
                     if (words[i].StartsWith("personne"))
                     {
@@ -156,22 +163,33 @@ namespace SmartApero
 
                         if (nb != null)
                         {
+                            q.Value = nb;
                             q.HasBeenAsked = true;
                         }
 
                         break;
                     }
                 }
+
+                if (args.Result.Text.Contains("soyons fou") || args.Result.Text.Contains("soyons fous") || args.Result.Text.Contains("soyons-fou"))
+                    _isCrazy = true;
+
             }
             else
             {
-                _currentQuestion.Value = _currentQuestion.Finder.Resolve(args.Result.Text);
+                if (args.Result.Text.Contains("quelle est la différence"))
+                {
+                    Speak(_currentQuestion.Help);
+                    return;
+                }
+                else
+                    _currentQuestion.Value = _currentQuestion.Finder.Resolve(args.Result.Text);
             }
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                DictationTextBox.Text = dictatedTextBuilder.ToString();
-            });
+                    {
+                        DictationTextBox.Text = dictatedTextBuilder.ToString();
+                    });
 
             if (_currentQuestion.Value == null)
             {

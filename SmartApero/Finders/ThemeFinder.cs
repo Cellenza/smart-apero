@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SmartApero.Finders
 {
-    public class YesNoFinder : Finder
+    public class ThemeFinder : Finder
     {
-        private string[] _yes = new[] { "oui", "yes", "bien sûr", "évidemment", "absolument", "certainement", "volontiers" };
-        private string[] _no = new[] { "non", "nope", "pas", "négatif" };
+        private string[] _dinatoire = new[] { "dinatoire", "dînatoire" };
+        private string[] _classique = new[] { "classique" };
 
         public override string Resolve(string text)
         {
@@ -17,9 +17,9 @@ namespace SmartApero.Finders
 
             foreach (var word in words)
             {
-                if (_no.Contains(word))
+                if (_dinatoire.Contains(word))
                     return "0";
-                if (_yes.Contains(word))
+                if (_classique.Contains(word))
                     return "1";
             }
 

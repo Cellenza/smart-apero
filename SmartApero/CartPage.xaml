@@ -8,15 +8,21 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <TextBlock x:Name="Loader" Text="Chargement intelligent du panier..." HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe"/>
+
         <ItemsControl x:Name="CartList">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding MainImageUrl}" Height="50" Width="50"/>
-                        <TextBlock Text="{Binding Name}"/>
+                        <Image Source="{Binding MainImageUrl}" Height="90" Width="90" Margin="10"/>
+                        <TextBlock Text="{Binding Name}" Margin="10" VerticalAlignment="Center"/>
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+
+        <Button Content="Acheter" Click="Button_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10" />
+
     </Grid>
 </Page>

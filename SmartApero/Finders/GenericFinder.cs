@@ -10,6 +10,9 @@ namespace SmartApero.Finders
     {
         public override string Resolve(string text)
         {
+            if (text.Contains("dînatoire"))
+                return "1";
+
             return text;
         }
     }
