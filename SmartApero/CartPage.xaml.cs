@@ -61,6 +61,8 @@ namespace SmartApero
                 
                 var keywords = new Dictionary<string, int>();
 
+                keywords.Add("charcuterie", 1);
+
                 if (_questions.Single(e => e.Key == QuestionsType.enfant.ToString()).Value.ToString() == "1")
                 {
                     keywords.Add( "fraise tagada", 1);
@@ -70,10 +72,20 @@ namespace SmartApero
                 {
                     keywords.Add("bouteille vin", 1);
                     keywords.Add("pack biere", 1);
+                    keywords.Add("coca cola pack", 1);
                 }
                 else
                 {
-                    keywords.Add("coca cola pack", 1);
+                    keywords.Add("coca cola pack", 2);
+                }
+                
+                if(_questions.Single(e => e.Key == QuestionsType.theme.ToString()).Value.ToString() == "0")
+                {
+                    keywords.Add("tomme de vache lait cru", 1);
+                }
+                else
+                {
+                    keywords.Add("chips vico", 1);
                 }
                 
 
