@@ -58,11 +58,25 @@ namespace SmartApero
                 Cdiscount.OpenApi.ProxyClient.OpenApiClient client = new Cdiscount.OpenApi.ProxyClient.OpenApiClient(config);
 
                 SearchRequest request = new SearchRequest();
+                
+                var keywords = new Dictionary<string, int>();
 
                 if (_questions.Single(e => e.Key == QuestionsType.enfant.ToString()).Value.ToString() == "1")
                 {
-                    request.Keyword = "fraise tagada";
+                    keywords.Add( "fraise tagada", 1);
                 }
+
+                if (_questions.Single(e => e.Key == QuestionsType.alcool.ToString()).Value.ToString() == "1")
+                {
+                    keywords.Add("bouteille vin", 1);
+                    keywords.Add("pack biere", 1);
+                }
+                else
+                {
+                    keywords.Add("coca cola pack", 1);
+                }
+                
+
 
                 var p = new StringTable()
                 {
@@ -84,8 +98,11 @@ namespace SmartApero
 
                 var res = await AzureMachineLearning.InvokeRequestResponseService(p);
 
-                var response = client.Search(request);
-                Products.Add(response.Products.First());
+                foreach (var k in keywords)
+                {
+                    var response = client.Search(request);
+                    Products.Add(response.Products.First());
+                }
             });
 
             CartList.ItemsSource = Products;
