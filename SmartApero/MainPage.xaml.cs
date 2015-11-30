@@ -277,7 +277,14 @@ namespace SmartApero
         {
             if (speechRecognizer.State != SpeechRecognizerState.Idle)
             {
-                await speechRecognizer.ContinuousRecognitionSession.StopAsync();
+                try
+                {
+                    await speechRecognizer.ContinuousRecognitionSession.StopAsync();
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
 

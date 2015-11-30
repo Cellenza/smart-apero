@@ -72,6 +72,9 @@ namespace SmartApero
                    keywords.Add("fraise tagada", 1);
                }
 
+               if (_questions.First().Value.ToString() == "partouze")
+                   keywords.Add("lingerie", 1);
+
                if (_questions.Single(e => e.Key == QuestionsType.alcool.ToString()).Value.ToString() == "1")
                {
                    keywords.Add("bouteille vin", 1);
